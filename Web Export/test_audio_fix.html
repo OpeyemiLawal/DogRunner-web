@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>DogRunner - Audio Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DogRunner - Audio Context Fix</h1>
+        <p>This page includes fixes for the AudioContext issue in HTML5 exports.</p>
+        
+        <div id="instructions">
+            <h2>Instructions:</h2>
+            <ol>
+                <li>Click the "Enable Audio" button below to resume the AudioContext</li>
+                <li>Then click or tap anywhere in the game to start audio</li>
+                <li>The game should no longer freeze in the menu</li>
+            </ol>
+            
+            <button class="button" onclick="resumeAudio()">Enable Audio</button>
+            <button class="button" onclick="loadGame()">Load Game</button>
+        </div>
+        
+        <div id="game-container" style="display:none;">
+            <iframe src="DogRunner.html" allow="autoplay"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function resumeAudio() {
+            // Try to resume any existing AudioContext
+            if (typeof window.godot_audio_resume === 'function') {
+                window.godot_audio_resume();
+            }
+            
+            // Create a dummy audio context to unlock audio
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            audioContext.resume().then(() => {
+                console.log('AudioContext resumed successfully');
+                alert('Audio enabled! Now load the game and click/tap to start playing with sound.');
+            }).catch(err => {
+                console.warn('Failed to resume AudioContext:', err);
+            });
+        }
+        
+        function loadGame() {
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+        }
+        
+        // Auto-resume audio on any user interaction
+        document.addEventListener('click', function() {
+            if (typeof window.godot_audio_resume === 'function') {
+                window.godot_audio_resume();
+            }
+        }, { once: false });
+        
+        document.addEventListener('touchstart', function() {
+            if (typeof window.godot_audio_resume === 'function') {
+                window.godot_audio_resume();
+            }
+        }, { once: false });
+    </script>
+</body>
+</html>
